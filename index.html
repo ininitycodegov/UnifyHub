@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UnifyHub</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+      text-align: center;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: bold;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b, #6a11cb, #2575fc);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient 5s ease infinite;
+      letter-spacing: 0.2rem;
+      line-height: 1.2;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .carousel-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 800px;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background-color: #1e1e1e;
+      overflow-y: auto;
+      max-height: 85vh;
+      scrollbar-width: thin;
+      scrollbar-color: #ff7e5f #1e1e1e;
+    }
+
+    .carousel-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .carousel-container::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    .carousel-container::-webkit-scrollbar-thumb {
+      background: #ff7e5f;
+      border-radius: 4px;
+    }
+
+    .button {
+      width: 100%;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      color: #ffffff;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #feb47b, #ff7e5f);
+    }
+
+    .button span {
+      position: relative;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+      font-weight: 600;
+    }
+
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: skewX(-20deg);
+      transition: left 0.4s ease;
+    }
+
+    .button:hover::before {
+      left: 100%;
+    }
+
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        margin-bottom: 1.5rem;
+      }
+
+      .carousel-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        max-height: 80vh;
+        padding: 1rem;
+      }
+
+      .button {
+        height: 100px;
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .carousel-container {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        height: 90px;
+        font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      }
+    }
+
+    /* Melhorias de acessibilidade */
+    .button:focus {
+      outline: 2px solid #feb47b;
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .button,
+      .button:hover,
+      .button::before,
+      .header {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
+  </head>
+  <body>
+    <div class="header">UnifyHub</div>
+
+    <div class="carousel-container" id="button-container">
+      <!-- Botões carregados do Firebase aparecerão aqui -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js'
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+      } from 'https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js'
+
+      const firebaseConfig = {
+        apiKey: 'AIzaSyCHMuTsq6KHAG6zJfw01LBHbwluSGJMMvM',
+        authDomain: 'unifyhub-2fedc.firebaseapp.com',
+        projectId: 'unifyhub-2fedc',
+        storageBucket: 'unifyhub-2fedc.firebasestorage.app',
+        messagingSenderId: '70946410932',
+        appId: '1:70946410932:web:61e66db07eb273c4fc62e1',
+        measurementId: 'G-220W75C40Z',
+      }
+
+      const app = initializeApp(firebaseConfig)
+      const db = getFirestore(app)
+
+      async function loadSitesFromFirebase() {
+        const container = document.getElementById('button-container')
+        const querySnapshot = await getDocs(collection(db, 'sites'))
+        querySnapshot.forEach((doc) => {
+          createButton(doc.data().name, doc.data().url)
+        })
+        animateButtons()
+      }
+
+      function createButton(name, url) {
+        const container = document.getElementById('button-container')
+        const button = document.createElement('a')
+        button.className = 'button'
+        button.href = url
+        button.target = '_blank'
+        button.innerHTML = `<span>${name}</span>`
+        container.appendChild(button)
+      }
+
+      function animateButtons() {
+        gsap.from('.button', {
+          duration: 1,
+          opacity: 0,
+          y: 20,
+          stagger: 0.2,
+          ease: 'power3.out',
+        })
+      }
+
+      window.onload = loadSitesFromFirebase
+    </script>
+  </body>
+</html>
